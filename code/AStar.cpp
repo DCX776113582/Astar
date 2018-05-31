@@ -9,7 +9,6 @@
 
 AStar::AStar():
 	m_numSurround(8),
-	m_map(0),
 	m_row(0),
 	m_col(0)
 {
@@ -34,13 +33,7 @@ AStar::AStar():
 
 void AStar::ClearObstacles()
 {
-	if(m_map)
-	{
-		int size = m_row*m_col/8+1;
-		memset(m_map,0,size);
-        //memcpy,memset
-	}
-
+    obstacle_lists.clear();
 	m_closeList.clear();
 	m_openList.clear();
 }
@@ -208,54 +201,28 @@ bool AStar::SetMapSize(int row,int col)
 	if(row<= 0 || col<=0)
 		return false;
 
-	if(m_map)
-		delete[] m_map;
-
-	int size = row*col/8+1;
-
-	m_map = new unsigned char[size];
-
-	memset(m_map,0,size);
-
 	m_row = row;
 	m_col = col;
     
-    for (int i = 0; i < size; i++) {
-        printf("%d ",m_map[i]);
-    }
-    printf("\n");
-
-	return true;
+    return true;
 }
 
-void AStar::SetObstacle(const ASCOORD& coord)
+void AStar::SetObstacle( ASCOORD& coord)
 {
 	if(coord._x>=0 && coord._x<m_col && coord._y>=0 && coord._y<m_row)
 	{
-		int index = coord._y*m_col+coord._x;
-        printf("index:%d\n",index);
-        printf("index 8: %d\n",index%8);
-        printf("index/8:%d\n",index/8);
-        printf("%d\n",1<<(index%8));
-        printf("*******%d\n",m_map[index/8] | 1<<(index%8));
-
-		m_map[index/8] |= 1<<(index%8);
+        obstacle_lists.push_back(coord);
 	}
-    
-    int size = m_row*m_col/8+1;
-    for (int i = 0; i < size; i++) {
-        printf("%d ",m_map[i]);
-    }
-    printf("\n");
 }
 
-void AStar::CancleObstacle(const ASCOORD& coord)
+void AStar::CancleObstacle( ASCOORD& coord)
 {
 	if(coord._x>=0 && coord._x<m_col && coord._y>=0 && coord._y<m_row)
 	{
-		int index = coord._y*m_col+coord._x;
-
-		m_map[index/8] &= ~(1<<index%8);
+        auto itor = std::find(obstacle_lists.begin(), obstacle_lists.end(), coord);
+        if (itor != obstacle_lists.end()) {
+            obstacle_lists.erase(itor);
+        }
 	}
 }
 
@@ -263,9 +230,10 @@ bool AStar::IsObstacle(const ASCOORD& coord)
 {
 	if(coord._x>=0 && coord._x<m_col && coord._y>=0 && coord._y<m_row)
 	{
-		int index = coord._y*m_col+coord._x;
-
-		return m_map[index/8] & (1<<(index%8));
+        auto itor = std::find(obstacle_lists.begin(), obstacle_lists.end(), coord);
+        if (itor != obstacle_lists.end()) {
+            return true;
+        }
 	}
-	return true;
+	return false;
 }

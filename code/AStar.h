@@ -80,10 +80,10 @@ public:
 	bool GetRoute(std::vector<ASCOORD>* list);
 
 ///设置障碍物
-	void SetObstacle(const ASCOORD& coord);
+	void SetObstacle( ASCOORD& coord);
 
 ///取消障碍物
-	void CancleObstacle(const ASCOORD& coord);
+	void CancleObstacle( ASCOORD& coord);
 
 ///清除所有障碍物
 	void ClearObstacles();
@@ -102,7 +102,7 @@ public:
 	void SetDiagonalEnable(bool bEnable) {m_numSurround = bEnable?8:4;}
 	
 private:
-	unsigned char* m_map;   //用来记录是否是障碍物的
+    std::vector<ASCOORD>obstacle_lists; //记录障碍物节点的位置的容器
 	int  m_row;  //行
 	int  m_col;  //列
 
